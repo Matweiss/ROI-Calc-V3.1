@@ -2129,14 +2129,24 @@ function currentRoiFacts(){
 function buildNanoPrompt(){
   var f=currentRoiFacts();
   var websiteLine=f.website?f.website:'[prospect website not provided]';
-  return 'Transform the attached Lucra ROI calculator leave-behind into a polished, prospect-branded one-page sales asset for '+f.name+'.\n\n'+
-'CRITICAL CONSTRAINTS — DO NOT CHANGE THE MATH:\n'+
-'- Preserve every ROI number, input, label, formula-derived result, Lucra claim, and contact/detail already visible in the attached asset exactly as provided.\n'+
-'- Do not invent metrics, customer results, testimonials, compliance claims, financial assumptions, or extra proof points.\n'+
-'- If any number is hard to read, keep the original text from the source asset rather than guessing.\n\n'+
-'Current calculator facts to preserve/check against:\n'+
+  return 'Enhance this ROI output for '+f.name+' into a premium, visually striking one-page Lucra sales leave-behind.\n\n'+
+'Use the attached ROI output as the source asset and redesign it so it feels custom-built for '+f.name+', not like a spreadsheet, generic PDF, or Lucra calculator export.\n\n'+
+'Brand blend:\n'+
+'- Use Lucra\'s logo, colors, fonts, and premium sports-tech/fintech feel in tandem with '+f.name+'\'s assets, website style, venue environment, and visual identity.\n'+
+'- Keep Lucra clearly present as the solution unless the source asset is explicitly white-labeled.\n'+
+'- Let '+f.name+'\'s world drive the theme, atmosphere, background, textures, icons, and accent motifs.\n'+
+'- Prospect website/style reference: '+websiteLine+'\n'+
+'- Logo/mark cue: '+f.logo+'\n'+
+'- Brand color cue from calculator: '+f.brandColor+'\n\n'+
+'Creative direction:\n'+
+'- Make the main Annual Net ROI feel like the hero number.\n'+
+'- Create modern metric cards with strong hierarchy, polished spacing, premium lighting/glow/accent treatments, and tasteful icons for each key metric.\n'+
+'- Strongly adapt the look to the prospect\'s business category and atmosphere. If the prospect is an entertainment venue, make it feel immersive, energetic, and venue-specific. If it is hospitality, fitness, sports, retail, or family entertainment, adapt accordingly.\n'+
+'- Use background imagery, abstract environment cues, textures, colors, and small visual details that make the piece feel native to '+f.name+'.\n'+
+'- Include a concise bottom insight explaining why the ROI is compelling, low-risk, and high-upside.\n'+
+'- This should feel like a high-end branded sales asset Mat could confidently send to an executive after a sales call.\n\n'+
+'Source ROI facts to preserve from the calculator/source asset:\n'+
 '- Company/prospect: '+f.name+'\n'+
-'- Website: '+websiteLine+'\n'+
 '- Locations: '+f.locations+'\n'+
 '- Daily visitors per location: '+f.dailyVisitors.toLocaleString()+'\n'+
 '- Current ARPU: '+f.currentArpu+'\n'+
@@ -2152,19 +2162,11 @@ function buildNanoPrompt(){
 '- ROI multiple: '+f.roiMultiple+'\n'+
 '- Payback period: '+f.payback+'\n'+
 '- Break-even: '+f.breakEven+'\n\n'+
-'Prospect brand inputs:\n'+
-'- Brand color cue from calculator: '+f.brandColor+'\n'+
-'- Logo/mark cue: '+f.logo+'\n'+
-'- Website for visual style: '+websiteLine+'\n'+
-'- Current Lucra card template: '+f.template+' / '+f.theme+' theme / white-label: '+f.whiteLabel+'\n\n'+
-'Design direction:\n'+
-'- Make the asset feel custom-produced for '+f.name+', not like a generic Lucra template with a logo pasted on.\n'+
-'- Use the prospect brand color for accent bars, stat-card outlines, section dividers, and subtle background shapes.\n'+
-'- Keep Lucra clearly present as the solution unless the source asset is explicitly white-labeled.\n'+
-'- Use Lucra green only for Lucra-specific ROI emphasis; do not overpower the prospect palette.\n'+
-'- Preserve readability: annual net ROI, monthly lift, payback, break-even, and license cost should remain immediately scannable.\n'+
-'- Match the prospect website\'s visual personality: contrast, spacing, corners, texture/photo style, and typography hierarchy.\n\n'+
-'Return a print-quality one-page PDF or high-resolution image suitable to send after a sales call. Start with a conservative premium-clean version; only create a bolder alternate if requested.';
+'Important:\n'+
+'- Improve the visual design, hierarchy, brand presentation, and prospect-specific storytelling.\n'+
+'- Preserve the ROI values and assumptions from the attached/source output; do not randomly invent new financial metrics or proof points.\n'+
+'- It is okay to rewrite the short explanatory narrative for clarity and sales impact, as long as it stays consistent with the source numbers.\n'+
+'- Return a print-quality one-page PDF or high-resolution image.';
 }
 function generateNanoPrompt(){
   var txt=buildNanoPrompt(),ta=$('nano-prompt'),panel=$('nano-panel');
