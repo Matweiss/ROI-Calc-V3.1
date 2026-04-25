@@ -2131,7 +2131,7 @@ function buildNanoPrompt(){
   var websiteLine=f.website?f.website:'[prospect website not provided]';
   return 'Enhance this ROI output if this is for '+f.name+'. Use '+websiteLine+' if you are not sure of '+f.name+'\'s brand category.\n\n'+
 'The logos, colors, and fonts are all from my company Lucra, and I want to use them in tandem with '+f.name+'\'s assets from '+websiteLine+'.\n\n'+
-'Keep the ROI numbers and assumptions from the attached output the same. Only improve the design, layout, branding, and presentation.';
+'Do not change, recalculate, round, invent, or reinterpret any numbers, labels, assumptions, totals, ROI figures, payback, break-even, or financial claims from the attached output. Preserve them exactly as shown. Only improve the design, layout, branding, and presentation.';
 }
 function generateNanoPrompt(){
   var txt=buildNanoPrompt(),ta=$('nano-prompt'),panel=$('nano-panel');
