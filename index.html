@@ -187,6 +187,14 @@ input[type=range]:active::-webkit-slider-thumb{box-shadow:0 0 18px rgba(155,255,
 .logo-url-btn{padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);font-size:11px;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:var(--font)}
 .logo-url-btn:hover{border-color:var(--green);color:var(--green)}
 #logo-status{font-size:11px;color:var(--green)}
+
+.nano-panel{display:none;margin-top:12px;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.22);border-radius:var(--radius);padding:12px}
+.nano-panel.show{display:block}
+.nano-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.nano-title{font-size:11px;color:var(--purple);font-weight:600;text-transform:uppercase;letter-spacing:0.6px}
+.nano-sub{font-size:11px;color:var(--text3);line-height:1.45;margin-bottom:8px}
+.nano-textarea{width:100%;min-height:220px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:11px;line-height:1.55;padding:10px;font-family:var(--font);resize:vertical;outline:none}
+.nano-textarea:focus{border-color:var(--purple);color:var(--text)}
 .template-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .tmpl-btn{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);font-size:11px;color:var(--text3);cursor:pointer;font-family:var(--font);transition:all 0.15s}
 .tmpl-btn.on{border-color:var(--green);color:var(--green);background:var(--green-bg)}
@@ -527,6 +535,15 @@ input[type=range]:active::-webkit-slider-thumb{box-shadow:0 0 18px rgba(155,255,
         <button class="gen-btn2" id="pdf-btn" onclick="GENPDF()" disabled style="opacity:0.4;cursor:not-allowed">📄 PDF deck</button>
         <button class="gen-btn2" onclick="copyEmailCard()">📋 Email-ready</button>
         <button class="gen-btn2" onclick="openEmailDraft()">✉️ Email draft</button>
+        <button class="gen-btn2" onclick="generateNanoPrompt()">🍌 Nano prompt</button>
+      </div>
+      <div id="nano-panel" class="nano-panel">
+        <div class="nano-head">
+          <div class="nano-title">Nano Banana brand theming</div>
+          <button class="logo-url-btn" onclick="copyNanoPrompt()">Copy prompt</button>
+        </div>
+        <div class="nano-sub">Generate/download the ROI card or PDF, upload it to Nano Banana, then paste this prompt. It uses the current calculator numbers and locks the math.</div>
+        <textarea id="nano-prompt" class="nano-textarea" readonly placeholder="Click 🍌 Nano prompt to generate..."></textarea>
       </div>
       <div id="pdf-validation-msg" style="font-size:11px;color:var(--amber);margin-top:7px;display:none">⚠ Enter company name, URL, and logo to unlock PDF.</div>
     </div>
@@ -2061,6 +2078,106 @@ function renderProspectComparison(){
       ' ('+savedProspects[bestIdx].roiX+'x return, '+savedProspects[bestIdx].paybackDays+'d payback)</div>';
   }
   el.innerHTML=html;
+}
+
+
+/* ══════════════════════════════════════════════════
+   NANO BANANA BRAND THEMING PROMPT
+══════════════════════════════════════════════════ */
+function cleanWebsiteUrl(raw){
+  raw=(raw||'').trim();
+  if(!raw)return'';
+  return /^https?:\/\//i.test(raw)?raw:'https://'+raw;
+}
+function logoSourceLabel(){
+  var direct=($('logo-url-input')&&$('logo-url-input').value.trim())||'';
+  if(direct)return direct;
+  if(uploadedLogoDataUrl){return uploadedLogoDataUrl.indexOf('data:')===0?'uploaded/pasted logo in current ROI card':'auto-detected logo in current ROI card'}
+  var website=cleanWebsiteUrl(($('website-url')&&$('website-url').value)||'');
+  if(website){try{var d=new URL(website).hostname.replace(/^www\./,'');return 'use logo/brand mark from '+d;}catch(e){}}
+  return 'use prospect logo/brand mark from website or uploaded ROI card';
+}
+function currentRoiFacts(){
+  var loc=Math.max(1,Math.round(V.loc));
+  var perLocFee=V.fee/loc;
+  var r=C(V.vis,V.arpu,perLocFee,V.opt,V.lift);
+  return {
+    name:(($('n-roi')&&$('n-roi').value.trim())||'the prospect'),
+    website:cleanWebsiteUrl(($('website-url')&&$('website-url').value)||''),
+    brandColor:brandColor||'#9DFF93',
+    locations:loc,
+    dailyVisitors:Math.round(V.vis),
+    currentArpu:ap_(),
+    monthlyLicense:F(V.fee),
+    annualLicense:F(V.fee*12),
+    optIn:fq(V.opt)+'%',
+    arpuLift:fq(V.lift)+'%',
+    usersPerDay:r.dailyUsers,
+    monthlyUsers:r.moUsers.toLocaleString(),
+    monthlyLift:F(r.moRev*loc),
+    netMonthly:F(r.netMo*loc),
+    annualNetRoi:F(r.annROI*loc),
+    roiMultiple:r.roiX+'x',
+    payback:r.paybackDays+' days',
+    breakEven:r.bePct===Infinity?'effectively immediate':((r.bePct%1===0?r.bePct:r.bePct.toFixed(1))+'% adoption / '+r.brkUsers+' users per day'),
+    template:cardTemplate,
+    theme:cardTheme,
+    whiteLabel:whiteLabel?'yes':'no',
+    logo:logoSourceLabel()
+  };
+}
+function buildNanoPrompt(){
+  var f=currentRoiFacts();
+  var websiteLine=f.website?f.website:'[prospect website not provided]';
+  return 'Transform the attached Lucra ROI calculator leave-behind into a polished, prospect-branded one-page sales asset for '+f.name+'.\n\n'+
+'CRITICAL CONSTRAINTS — DO NOT CHANGE THE MATH:\n'+
+'- Preserve every ROI number, input, label, formula-derived result, Lucra claim, and contact/detail already visible in the attached asset exactly as provided.\n'+
+'- Do not invent metrics, customer results, testimonials, compliance claims, financial assumptions, or extra proof points.\n'+
+'- If any number is hard to read, keep the original text from the source asset rather than guessing.\n\n'+
+'Current calculator facts to preserve/check against:\n'+
+'- Company/prospect: '+f.name+'\n'+
+'- Website: '+websiteLine+'\n'+
+'- Locations: '+f.locations+'\n'+
+'- Daily visitors per location: '+f.dailyVisitors.toLocaleString()+'\n'+
+'- Current ARPU: '+f.currentArpu+'\n'+
+'- Monthly license: '+f.monthlyLicense+'\n'+
+'- Annual license: '+f.annualLicense+'\n'+
+'- Opt-in rate: '+f.optIn+'\n'+
+'- ARPU lift: '+f.arpuLift+'\n'+
+'- Users/day: '+f.usersPerDay+'\n'+
+'- Monthly users: '+f.monthlyUsers+'\n'+
+'- Monthly lift: '+f.monthlyLift+'\n'+
+'- Net monthly: '+f.netMonthly+'\n'+
+'- Annual net ROI: '+f.annualNetRoi+'\n'+
+'- ROI multiple: '+f.roiMultiple+'\n'+
+'- Payback period: '+f.payback+'\n'+
+'- Break-even: '+f.breakEven+'\n\n'+
+'Prospect brand inputs:\n'+
+'- Brand color cue from calculator: '+f.brandColor+'\n'+
+'- Logo/mark cue: '+f.logo+'\n'+
+'- Website for visual style: '+websiteLine+'\n'+
+'- Current Lucra card template: '+f.template+' / '+f.theme+' theme / white-label: '+f.whiteLabel+'\n\n'+
+'Design direction:\n'+
+'- Make the asset feel custom-produced for '+f.name+', not like a generic Lucra template with a logo pasted on.\n'+
+'- Use the prospect brand color for accent bars, stat-card outlines, section dividers, and subtle background shapes.\n'+
+'- Keep Lucra clearly present as the solution unless the source asset is explicitly white-labeled.\n'+
+'- Use Lucra green only for Lucra-specific ROI emphasis; do not overpower the prospect palette.\n'+
+'- Preserve readability: annual net ROI, monthly lift, payback, break-even, and license cost should remain immediately scannable.\n'+
+'- Match the prospect website\'s visual personality: contrast, spacing, corners, texture/photo style, and typography hierarchy.\n\n'+
+'Return a print-quality one-page PDF or high-resolution image suitable to send after a sales call. Start with a conservative premium-clean version; only create a bolder alternate if requested.';
+}
+function generateNanoPrompt(){
+  var txt=buildNanoPrompt(),ta=$('nano-prompt'),panel=$('nano-panel');
+  if(ta)ta.value=txt;
+  if(panel)panel.classList.add('show');
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){toast('🍌 Nano prompt copied')}).catch(function(){toast('Nano prompt generated')});}
+  else toast('Nano prompt generated');
+}
+function copyNanoPrompt(){
+  var ta=$('nano-prompt');
+  if(!ta||!ta.value)generateNanoPrompt();
+  ta=$('nano-prompt');
+  if(navigator.clipboard&&ta){navigator.clipboard.writeText(ta.value);toast('Copied Nano prompt')}
 }
 
 /* ══════════════════════════════════════════════════
